@@ -1,0 +1,11 @@
+{
+    "require-dev": {
+        "phpunit/phpunit": "10.*"
+    },
+    "autoload": {
+        "psr-4": {
+            "php_utils\\": "src/"
+        }
+    },
+    "files": ["src/functions.php"]
+}
