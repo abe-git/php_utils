@@ -1,57 +1,36 @@
 <?php
-// namespace php_utils\functions;
+namespace php_utils\functions;
 
 /**
- * カラーコードを入力するとNTSC加重平均により計算したグレースケールのカラーコードを返す
+ * カラーコードを入力するとNTSC加重平均を厳密ではない計算をしたグレースケールのカラーコードを返す
  * 
  * @param string $colorCode カラーコード
  * @return string グレースケールのカラーコード
  */
-function convertToGreyScale($colorCode){
+function convertToGreyScale(string $colorCode){
+    if(substr($colorCode,0,1) !== "#" ){
+        throw new \Exception('#で始まるカラーコードではない');
+    }
+    if(strlen($colorCode) != 4 && strlen($colorCode) != 7){
+        throw new \Exception('3桁または6桁のカラーコードではない');
+    }
     // カラーコードからRGBをそれぞれ抽出し数値に変換
-    $red = hexdec(substr($colorCode,1,2));
-    $green = hexdec(substr($colorCode,3,2));
-    $blue = hexdec(substr($colorCode,5,2));
+    if(strlen($colorCode) == 4){
+        $red   = hexdec(str_repeat(substr($colorCode,1,1),2));
+        $green = hexdec(str_repeat(substr($colorCode,2,1),2));
+        $blue  = hexdec(str_repeat(substr($colorCode,3,1),2));
+    }else{
+        $red   = hexdec(substr($colorCode,1,2));
+        $green = hexdec(substr($colorCode,3,2));
+        $blue  = hexdec(substr($colorCode,5,2));
+    }
 
     // RGBからNTSC加重平均のグレースケールを計算
-    $greyScale = ceil(0.298912*$red + 0.586611*$green + 0.114478*$blue);
+    $greyScale = round(0.29891*$red + 0.58661*$green + 0.11447*$blue);
 
     // グレースケールをカラーコードに変換
-    $greyElm = dechex($greyScale);
+    $greyElm       = str_pad(dechex($greyScale), 2, 0, STR_PAD_LEFT);
     $greyScaleCode = "#" . $greyElm . $greyElm . $greyElm;
 
     return $greyScaleCode;
-}
-
-/**
- * 背景色を入力すると見やすい文字色が白か黒か判断しカラーコードを返す
- * 
- * 背景色の明暗に合わせて下記を返す。
- * 背景色が明るい→黒(#000000)
- * 背景色が暗い→白(#ffffff)
- * 
- * @param string $colorCode 背景色のカラーコード
- * @return string 背景色に適した文字のカラーコード(白黒)
- */
-function getRGreyScale($colorCode){
-    // カラーコードからRGBをそれぞれ抽出し数値に変換
-    $red = hexdec(substr($colorCode,1,2));
-    $green = hexdec(substr($colorCode,3,2));
-    $blue = hexdec(substr($colorCode,5,2));
-
-    // RGBからNTSC加重平均のグレースケールを計算
-    $greyScale = ceil(0.298912*$red + 0.586611*$green + 0.114478*$blue);
-
-    // グレースケールが黒寄りなら白、白寄りなら黒の反転グレースケールにする
-    if($greyScale < 128){
-        $rGreyScale = 255;
-    }else{
-        $rGreyScale = 0;
-    }
-
-    // 反転グレースケールをカラーコードに変換
-    $rGreyElm = dechex($rGreyScale);
-    $rGreyScaleCode = "#" . $rGreyElm . $rGreyElm . $rGreyElm;
-
-    return $rGreyScaleCode;
 }
